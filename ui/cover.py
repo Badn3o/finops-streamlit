@@ -145,6 +145,24 @@ def render_cover() -> None:
         90% {{ width: 88%; }}
         100% {{ width: 95%; }}
       }}
+      @media (prefers-reduced-motion: reduce) {{
+        .logo,
+        .title,
+        .subtitle,
+        .loader-wrapper,
+        .stats {{
+          opacity: 1 !important;
+          animation: none !important;
+        }}
+        .overlay,
+        #heroCanvas {{
+          display: none;
+        }}
+        .loader-bar {{
+          width: 95%;
+          animation: none !important;
+        }}
+      }}
     </style>
 
     <canvas id="heroCanvas"></canvas>
@@ -224,6 +242,22 @@ def render_cover() -> None:
       var targets = {{ compute: 84250, storage: 32180, transfer: 12560, ai: 8910 }};
       var current = {{ compute: 0, storage: 0, transfer: 0, ai: 0 }};
       var startTime = performance.now();
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) {{
+        var reducedStats = {{ compute: '84.3K', storage: '32.2K', transfer: '12.6K', ai: '8.9K' }};
+        ['compute', 'storage', 'transfer', 'ai'].forEach(function(k) {{
+          var el = document.getElementById('stat' + k.charAt(0).toUpperCase() + k.slice(1));
+          if (el) {{
+            el.textContent = reducedStats[k];
+          }}
+        }});
+        var loaderBar = document.querySelector('.loader-bar');
+        if (loaderBar) {{
+          loaderBar.style.width = '95%';
+          loaderBar.style.animation = 'none';
+        }}
+        return;
+      }}
 
       function animate() {{
         var elapsed = performance.now() - startTime;

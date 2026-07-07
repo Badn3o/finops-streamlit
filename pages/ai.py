@@ -31,8 +31,8 @@ def render_ai(filters: dict[str, Any] | None = None) -> None:
     currency = str(filters.get("currency", "EUR")).upper()
 
     st.markdown(
-        '<p class="page-title">AI</p>'
-        '<p class="page-subtitle">Consumo real de servicios de inteligencia artificial</p>',
+        '<p class="page-title fade-in stagger-1">AI</p>'
+        '<p class="page-subtitle fade-in stagger-2">Consumo real de servicios de inteligencia artificial</p>',
         unsafe_allow_html=True,
     )
     render_context_badges(

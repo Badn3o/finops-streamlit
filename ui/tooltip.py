@@ -18,6 +18,6 @@ def render_context_badges(items: Sequence[tuple[str, str]]) -> None:
         for label, help_text in items
     )
     st.markdown(
-        f'<div class="context-badges">{badges_html}</div>',
+        f'<div class="context-badges fade-in stagger-2">{badges_html}</div>',
         unsafe_allow_html=True,
     )

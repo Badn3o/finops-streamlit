@@ -31,8 +31,8 @@ def render_file_transfer(filters: dict[str, Any] | None = None) -> None:
     currency = str(filters.get("currency", "EUR")).upper()
 
     st.markdown(
-        '<p class="page-title">File Transfer</p>'
-        '<p class="page-subtitle">Transferencias reales entre clouds y regiones</p>',
+        '<p class="page-title fade-in stagger-1">File Transfer</p>'
+        '<p class="page-subtitle fade-in stagger-2">Transferencias reales entre clouds y regiones</p>',
         unsafe_allow_html=True,
     )
     render_context_badges(

@@ -37,8 +37,8 @@ def render_overview(filters: dict[str, Any] | None = None) -> None:
     currency = str(filters.get("currency", "EUR")).upper()
 
     st.markdown(
-        '<p class="page-title">Overview</p>'
-        '<p class="page-subtitle">Visión general del gasto cloud real desde Snowflake</p>',
+        '<p class="page-title fade-in stagger-1">Overview</p>'
+        '<p class="page-subtitle fade-in stagger-2">Visión general del gasto cloud real desde Snowflake</p>',
         unsafe_allow_html=True,
     )
     render_context_badges(

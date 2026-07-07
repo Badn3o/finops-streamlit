@@ -147,9 +147,8 @@ def _load_filter_options(filter_type: str) -> list[str]:
     """Carga opciones de filtro desde Snowflake, o lista vacía si no hay datos."""
     try:
         from config.settings import DATABASE, FINOPS_SCHEMA
-        from db.connection import get_session
+        from db.connection import run_query_cached
 
-        session = get_session()
         if filter_type == "business_line":
             sql = f"""
                 SELECT DISTINCT BUSINESS_LINE AS VALUE
@@ -165,7 +164,7 @@ def _load_filter_options(filter_type: str) -> list[str]:
                 ORDER BY 1
             """
 
-        result = session.sql(sql).collect()
-        return [str(r[0]) for r in result] if result else []
+        result = run_query_cached(sql)
+        return result.iloc[:, 0].astype(str).tolist() if not result.empty else []
     except Exception:
         return []

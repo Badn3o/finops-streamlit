@@ -34,8 +34,8 @@ def render_storage(filters: dict[str, Any] | None = None) -> None:
     currency = str(filters.get("currency", "EUR")).upper()
 
     st.markdown(
-        '<p class="page-title">Storage</p>'
-        '<p class="page-subtitle">Costes de almacenamiento y capacidad real</p>',
+        '<p class="page-title fade-in stagger-1">Storage</p>'
+        '<p class="page-subtitle fade-in stagger-2">Costes de almacenamiento y capacidad real</p>',
         unsafe_allow_html=True,
     )
     render_context_badges(

@@ -307,7 +307,8 @@ def inject_global_css() -> None:
       }}
 
       .fade-in {{
-        animation: fadeInUp 0.4s ease-out forwards;
+        opacity: 0;
+        animation: fadeInUp 0.4s ease-out both;
       }}
       .stagger-1 {{ animation-delay: 0.05s; }}
       .stagger-2 {{ animation-delay: 0.1s; }}
@@ -336,6 +337,95 @@ def inject_global_css() -> None:
       .badge.warning {{ background: rgba(255,179,0,0.12); color: {WARNING}; }}
       .badge.danger {{ background: rgba(255,61,0,0.12); color: {DANGER}; }}
       .badge.info {{ background: rgba(40,0,255,0.12); color: {LOGISTA_BLUE}; }}
+
+      @media (max-width: 1100px) {{
+        .nav-header {{
+          height: auto;
+          padding: 12px 16px;
+          gap: 16px;
+          align-items: flex-start;
+          flex-direction: column;
+        }}
+        .nav-header .nav-items {{
+          width: 100%;
+          overflow-x: auto;
+          padding-bottom: 2px;
+        }}
+        .page-title {{
+          font-size: 24px;
+          margin-top: 18px;
+        }}
+        .page-subtitle {{
+          font-size: 13px;
+          margin-bottom: 14px;
+        }}
+        .kpi-card {{
+          padding: 16px 18px;
+        }}
+        .kpi-card .kpi-value {{
+          font-size: 26px;
+        }}
+        .context-badges {{
+          gap: 6px;
+          margin-bottom: 14px;
+        }}
+        .context-badge {{
+          padding: 5px 10px;
+          font-size: 11px;
+        }}
+        .metric-row {{
+          gap: 12px;
+          margin-bottom: 18px;
+        }}
+      }}
+
+      @media (max-width: 768px) {{
+        .block-container {{
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+        }}
+        [data-testid="stHorizontalBlock"] {{
+          flex-direction: column;
+          gap: 12px;
+        }}
+        [data-testid="column"] {{
+          width: 100% !important;
+          flex: 1 1 100% !important;
+        }}
+        .nav-header .nav-item {{
+          padding: 8px 12px;
+          font-size: 12px;
+        }}
+        .nav-header .nav-item svg {{
+          width: 16px;
+          height: 16px;
+        }}
+        .kpi-card .kpi-label {{
+          font-size: 11px;
+        }}
+        .kpi-card .kpi-value {{
+          font-size: 22px;
+        }}
+        .chart-title {{
+          font-size: 14px;
+        }}
+      }}
+
+      @media (prefers-reduced-motion: reduce) {{
+        .fade-in {{
+          opacity: 1;
+          animation: none;
+        }}
+        .kpi-card:hover {{
+          transform: none;
+        }}
+        .kpi-card,
+        .nav-header .nav-item,
+        .context-badge,
+        .kpi-help {{
+          transition: none;
+        }}
+      }}
     </style>
     """
     st.markdown(css, unsafe_allow_html=True)

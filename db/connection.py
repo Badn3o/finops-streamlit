@@ -6,21 +6,48 @@ Proporciona helpers para ejecutar queries con caché.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Any
+from typing import Any, Hashable
 
 import pandas as pd
 import streamlit as st
-from snowflake.snowpark.session import Session
 
 from config.settings import SNOWFLAKE_CONN_NAME, WAREHOUSE
 
 
 @st.cache_resource
-def get_session() -> Session:
-    """Obtiene la sesión Snowflake (cacheada, se reusa entre reruns)."""
+def get_session() -> Any:
+    """Obtiene la sesión/conexión Snowflake (cacheada, se reusa entre reruns).
+
+    En runtimes con Snowpark devuelve la sesión activa; en runtimes con
+    SnowflakeConnection devuelve la conexión subyacente para compatibilidad.
+    """
     conn = st.connection(SNOWFLAKE_CONN_NAME)
-    return conn.session
+    return getattr(conn, "session", None) or conn
+
+
+def _execute_df(sql: str, params: dict[str, Any] | tuple[Any, ...] | None = None) -> pd.DataFrame:
+    """Ejecuta SQL adaptándose a Snowpark Session o SnowflakeConnection."""
+    runtime = get_session()
+    if hasattr(runtime, "sql"):
+        result = runtime.sql(sql, params=params).collect() if params is not None else runtime.sql(sql).collect()
+        if not result:
+            return pd.DataFrame()
+        return pd.DataFrame([r.as_dict() for r in result])
+
+    if params is None:
+        with runtime.cursor() as cur:
+            cur.execute(sql)
+            if cur.description is None:
+                return pd.DataFrame()
+            cols = [d[0] for d in cur.description]
+            return pd.DataFrame(cur.fetchall(), columns=cols)
+
+    with runtime.cursor() as cur:
+        cur.execute(sql, params)
+        if cur.description is None:
+            return pd.DataFrame()
+        cols = [d[0] for d in cur.description]
+        return pd.DataFrame(cur.fetchall(), columns=cols)
 
 
 def run_query(sql: str, params: dict[str, Any] | None = None) -> pd.DataFrame:
@@ -38,32 +65,22 @@ def run_query(sql: str, params: dict[str, Any] | None = None) -> pd.DataFrame:
     pd.DataFrame
         Resultado de la consulta
     """
-    session = get_session()
-    session.use_warehouse(WAREHOUSE)
-    if params:
-        result = session.sql(sql, params=params).collect()
-    else:
-        result = session.sql(sql).collect()
-    if not result:
-        return pd.DataFrame()
-    return pd.DataFrame([r.as_dict() for r in result])
+    runtime = get_session()
+    if hasattr(runtime, "use_warehouse"):
+        runtime.use_warehouse(WAREHOUSE)
+    return _execute_df(sql, params=params)
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def run_query_cached(sql: str, params: tuple | Sequence | None = None) -> pd.DataFrame:
+def run_query_cached(sql: str, params: tuple[Hashable, ...] | None = None) -> pd.DataFrame:
     """Versión cacheada de run_query (1h TTL).
 
     IMPORTANTE: los parámetros deben ser hashables (tupla, no dict).
     """
-    session = get_session()
-    session.use_warehouse(WAREHOUSE)
-    if params:
-        result = session.sql(sql, params=params).collect()
-    else:
-        result = session.sql(sql).collect()
-    if not result:
-        return pd.DataFrame()
-    return pd.DataFrame([r.as_dict() for r in result])
+    runtime = get_session()
+    if hasattr(runtime, "use_warehouse"):
+        runtime.use_warehouse(WAREHOUSE)
+    return _execute_df(sql, params=params)
 
 
 def discover_finops_schema() -> str | None:
@@ -76,13 +93,12 @@ def discover_finops_schema() -> str | None:
     """
     from config.settings import DATABASE, FIN_OPS_SCHEMAS
 
-    session = get_session()
     for schema in FIN_OPS_SCHEMAS:
         try:
-            result = session.sql(
+            result = _execute_df(
                 f"SHOW TABLES IN SCHEMA {DATABASE}.{schema} LIKE 'FCT_COMPUTE_COST'"
-            ).collect()
-            if result:
+            )
+            if not result.empty:
                 return schema
         except Exception:
             continue
@@ -100,18 +116,17 @@ def get_schema_info() -> dict[str, list[str]]:
     """
     from config.settings import DATABASE, TABLAS
 
-    session = get_session()
+    info = {}
     schema = discover_finops_schema()
     if not schema:
         return {}
 
-    info = {}
     for table_key in TABLAS:
         try:
-            result = session.sql(
+            result = _execute_df(
                 f"DESC TABLE {DATABASE}.{schema}.{table_key}"
-            ).collect()
-            info[table_key] = [r["name"] for r in result]
+            )
+            info[table_key] = result["name"].tolist() if not result.empty and "name" in result.columns else []
         except Exception:
             info[table_key] = []
     return info

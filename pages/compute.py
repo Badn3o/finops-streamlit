@@ -35,8 +35,8 @@ def render_compute(filters: dict[str, Any] | None = None) -> None:
     currency = str(filters.get("currency", "EUR")).upper()
 
     st.markdown(
-        '<p class="page-title">Compute</p>'
-        '<p class="page-subtitle">Costes de cómputo por warehouse y categoría real</p>',
+        '<p class="page-title fade-in stagger-1">Compute</p>'
+        '<p class="page-subtitle fade-in stagger-2">Costes de cómputo por warehouse y categoría real</p>',
         unsafe_allow_html=True,
     )
     render_context_badges(
