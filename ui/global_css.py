@@ -19,6 +19,7 @@ def inject_global_css() -> None:
     """Inyecta el CSS global con la identidad Logista."""
     css = f"""
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Nunito:wght@700&display=swap');
       /* ── Reset & Base ───────────────────────────────── */
       .stApp {{
         background-color: {BG_DARK};
@@ -26,20 +27,12 @@ def inject_global_css() -> None:
       .stApp > header {{
         background-color: transparent !important;
       }}
-      .st-emotion-cache-1avcm0n {{
-        background: {BG_DARK};
-      }}
-      .stMainBlockContainer {{
-        padding: 0 !important;
-        max-width: 100% !important;
-      }}
       .block-container {{
         padding: 0 !important;
         max-width: 100% !important;
       }}
 
       /* ── Typography ─────────────────────────────────── */
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Nunito:wght@700&display=swap');
 
       * {{
         font-family: 'Inter', system-ui, sans-serif;
@@ -165,6 +158,64 @@ def inject_global_css() -> None:
         font-size: 16px;
         font-weight: 700;
         margin: 6px 0 10px;
+      }}
+      .kpi-label-row {{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }}
+      .kpi-help {{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.04);
+        color: {TEXT_SECONDARY};
+        font-size: 11px;
+        line-height: 1;
+        cursor: help;
+        flex: 0 0 auto;
+      }}
+      .kpi-help:hover {{
+        border-color: rgba(252,76,2,0.4);
+        color: {TEXT_PRIMARY};
+        background: rgba(252,76,2,0.1);
+      }}
+      .context-badges {{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 18px;
+      }}
+      .context-badge {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: {TEXT_SECONDARY};
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        cursor: help;
+        transition: all 0.2s ease;
+      }}
+      .context-badge::before {{
+        content: '•';
+        color: {LOGISTA_ORANGE};
+        font-size: 14px;
+        line-height: 1;
+      }}
+      .context-badge:hover {{
+        color: {TEXT_PRIMARY};
+        border-color: rgba(252,76,2,0.28);
+        background: rgba(252,76,2,0.08);
       }}
 
       /* ── Navigation header ──────────────────────────── */

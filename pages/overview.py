@@ -15,6 +15,8 @@ from queries.overview import (
     get_overview_kpis,
     get_tag_monthly_cost,
 )
+from ui.kpi_card import render_kpi_card
+from ui.tooltip import render_context_badges
 
 
 def _currency_symbol(currency: str) -> str:
@@ -29,20 +31,6 @@ def _fmt_percent(value: float) -> str:
     return f"{value * 100:,.1f}%"
 
 
-def _metric_card(label: str, value: str, trend: str | None = None, trend_class: str = "") -> None:
-    delta_html = ""
-    if trend:
-        delta_html = f'<div class="kpi-delta {trend_class}">{trend}</div>'
-    st.markdown(
-        f'<div class="kpi-card">'
-        f'<div class="kpi-label">{label}</div>'
-        f'<div class="kpi-value">{value}</div>'
-        f'{delta_html}'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-
 def render_overview(filters: dict[str, Any] | None = None) -> None:
     """Renderiza la página Overview."""
     filters = filters or {}
@@ -52,6 +40,13 @@ def render_overview(filters: dict[str, Any] | None = None) -> None:
         '<p class="page-title">Overview</p>'
         '<p class="page-subtitle">Visión general del gasto cloud real desde Snowflake</p>',
         unsafe_allow_html=True,
+    )
+    render_context_badges(
+        [
+            ("Datos reales Snowflake", "Todas las cifras provienen de queries SQL directas sobre Snowflake."),
+            ("Filtros globales", "Moneda, período, formato, business line, environment y rango de fechas se aplican aquí."),
+            ("Hover para detalle", "Pasa el cursor sobre KPIs y gráficos para ver desgloses y contexto."),
+        ]
     )
 
     kpis_df = get_overview_kpis(filters)
@@ -88,13 +83,33 @@ def render_overview(filters: dict[str, Any] | None = None) -> None:
 
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     with kpi1:
-        _metric_card("Total Coste", _fmt_money(total_cost, currency), f"{_currency_symbol(currency)} {total_cost:,.2f} real")
+        render_kpi_card(
+            "Total Coste",
+            _fmt_money(total_cost, currency),
+            f"{_currency_symbol(currency)} {total_cost:,.2f} real",
+            help_text="Coste total agregado de Compute, Storage, File Transfer y AI en el rango activo.",
+        )
     with kpi2:
-        _metric_card("Compute Share", _fmt_percent(top_service_share), "Peso compute sobre el total")
+        render_kpi_card(
+            "Compute Share",
+            _fmt_percent(top_service_share),
+            "Peso compute sobre el total",
+            help_text="Porcentaje del total de costes atribuido a Compute.",
+        )
     with kpi3:
-        _metric_card("Saldo restante", _fmt_money(remaining, currency), f"Utilización {_fmt_percent(utilization)}")
+        render_kpi_card(
+            "Saldo restante",
+            _fmt_money(remaining, currency),
+            f"Utilización {_fmt_percent(utilization)}",
+            help_text="Importe de balance restante y ratio de utilización sobre el total del periodo.",
+        )
     with kpi4:
-        _metric_card("Top TAG", f"{tag_name}<span class='kpi-unit'>· {_fmt_money(tag_value, currency)}</span>")
+        render_kpi_card(
+            "Top TAG",
+            tag_name,
+            help_text="TAG con mayor coste acumulado en el periodo filtrado.",
+            value_suffix=f"· {_fmt_money(tag_value, currency)}",
+        )
 
     st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 

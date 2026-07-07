@@ -13,6 +13,8 @@ from queries.file_transfer import (
     get_transfer_route_ranking,
     get_transfer_trend,
 )
+from ui.kpi_card import render_kpi_card
+from ui.tooltip import render_context_badges
 
 
 def _currency_symbol(currency: str) -> str:
@@ -21,20 +23,6 @@ def _currency_symbol(currency: str) -> str:
 
 def _fmt_money(value: float, currency: str) -> str:
     return f"{_currency_symbol(currency)}{value:,.2f}"
-
-
-def _metric_card(label: str, value: str, trend: str | None = None, trend_class: str = "") -> None:
-    delta_html = ""
-    if trend:
-        delta_html = f'<div class="kpi-delta {trend_class}">{trend}</div>'
-    st.markdown(
-        f'<div class="kpi-card">'
-        f'<div class="kpi-label">{label}</div>'
-        f'<div class="kpi-value">{value}</div>'
-        f'{delta_html}'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
 
 
 def render_file_transfer(filters: dict[str, Any] | None = None) -> None:
@@ -46,6 +34,13 @@ def render_file_transfer(filters: dict[str, Any] | None = None) -> None:
         '<p class="page-title">File Transfer</p>'
         '<p class="page-subtitle">Transferencias reales entre clouds y regiones</p>',
         unsafe_allow_html=True,
+    )
+    render_context_badges(
+        [
+            ("Origen → destino", "El Sankey/flow muestra la dirección real del tráfico por ruta."),
+            ("Moneda dual", "Se puede contrastar el coste en EUR y USD para validar conversión."),
+            ("Rutas activas", "Ranking de rutas con más volumen o coste en el periodo filtrado."),
+        ]
     )
 
     kpis_eur = get_transfer_kpis(filters, currency="EUR")
@@ -71,13 +66,33 @@ def render_file_transfer(filters: dict[str, Any] | None = None) -> None:
 
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     with kpi1:
-        _metric_card("Volumen GB", f"{volume_gb:,.2f}", "Transferencia real")
+        render_kpi_card(
+            "Volumen GB",
+            f"{volume_gb:,.2f}",
+            "Transferencia real",
+            help_text="Volumen total transferido en gigabytes durante el rango filtrado.",
+        )
     with kpi2:
-        _metric_card("Coste EUR", _fmt_money(cost_eur, "EUR"), "Moneda base")
+        render_kpi_card(
+            "Coste EUR",
+            _fmt_money(cost_eur, "EUR"),
+            "Moneda base",
+            help_text="Coste de transferencia expresado en EUR.",
+        )
     with kpi3:
-        _metric_card("Coste USD", _fmt_money(cost_usd, "USD"), "Moneda secundaria")
+        render_kpi_card(
+            "Coste USD",
+            _fmt_money(cost_usd, "USD"),
+            "Moneda secundaria",
+            help_text="Coste de transferencia expresado en USD para contraste de monedas.",
+        )
     with kpi4:
-        _metric_card("Rutas", f"{route_count:,.0f}", "Combinaciones únicas")
+        render_kpi_card(
+            "Rutas",
+            f"{route_count:,.0f}",
+            "Combinaciones únicas",
+            help_text="Número de rutas origen-destino observadas en el periodo filtrado.",
+        )
 
     st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 

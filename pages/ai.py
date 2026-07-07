@@ -13,6 +13,8 @@ from queries.ai import (
     get_ai_trend,
     get_ai_user_ranking,
 )
+from ui.kpi_card import render_kpi_card
+from ui.tooltip import render_context_badges
 
 
 def _currency_symbol(currency: str) -> str:
@@ -21,20 +23,6 @@ def _currency_symbol(currency: str) -> str:
 
 def _fmt_money(value: float, currency: str) -> str:
     return f"{_currency_symbol(currency)}{value:,.2f}"
-
-
-def _metric_card(label: str, value: str, trend: str | None = None, trend_class: str = "") -> None:
-    delta_html = ""
-    if trend:
-        delta_html = f'<div class="kpi-delta {trend_class}">{trend}</div>'
-    st.markdown(
-        f'<div class="kpi-card">'
-        f'<div class="kpi-label">{label}</div>'
-        f'<div class="kpi-value">{value}</div>'
-        f'{delta_html}'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
 
 
 def render_ai(filters: dict[str, Any] | None = None) -> None:
@@ -46,6 +34,13 @@ def render_ai(filters: dict[str, Any] | None = None) -> None:
         '<p class="page-title">AI</p>'
         '<p class="page-subtitle">Consumo real de servicios de inteligencia artificial</p>',
         unsafe_allow_html=True,
+    )
+    render_context_badges(
+        [
+            ("Servicios IA", "Distribución por tipo de servicio consumido en Snowflake."),
+            ("Tokens y créditos", "Créditos, tokens y token credits se comparan en el mismo rango temporal."),
+            ("Ranking de usuarios", "Identifica qué usuarios concentran más coste de IA."),
+        ]
     )
 
     kpis_eur = get_ai_kpis(filters, currency="EUR")
@@ -73,15 +68,40 @@ def render_ai(filters: dict[str, Any] | None = None) -> None:
 
     kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
     with kpi1:
-        _metric_card("Coste EUR", _fmt_money(cost_eur, "EUR"), "Moneda base")
+        render_kpi_card(
+            "Coste EUR",
+            _fmt_money(cost_eur, "EUR"),
+            "Moneda base",
+            help_text="Coste de IA expresado en EUR para el rango filtrado.",
+        )
     with kpi2:
-        _metric_card("Coste USD", _fmt_money(cost_usd, "USD"), "Moneda secundaria")
+        render_kpi_card(
+            "Coste USD",
+            _fmt_money(cost_usd, "USD"),
+            "Moneda secundaria",
+            help_text="Coste de IA expresado en USD para contraste de conversión.",
+        )
     with kpi3:
-        _metric_card("Créditos", f"{credits_used:,.2f}", "Crédito real usado")
+        render_kpi_card(
+            "Créditos",
+            f"{credits_used:,.2f}",
+            "Crédito real usado",
+            help_text="Créditos consumidos por servicios de IA/ML durante el periodo.",
+        )
     with kpi4:
-        _metric_card("Tokens", f"{tokens:,.0f}", f"{token_credits:,.2f} token credits")
+        render_kpi_card(
+            "Tokens",
+            f"{tokens:,.0f}",
+            f"{token_credits:,.2f} token credits",
+            help_text="Tokens procesados y sus créditos equivalentes dentro del rango activo.",
+        )
     with kpi5:
-        _metric_card("Usuarios", f"{user_count:,.0f}", "Consumidores activos")
+        render_kpi_card(
+            "Usuarios",
+            f"{user_count:,.0f}",
+            "Consumidores activos",
+            help_text="Número de usuarios con consumo de IA en el periodo filtrado.",
+        )
 
     st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 

@@ -12,6 +12,8 @@ from queries.storage import (
     get_storage_kpis,
     get_storage_trend,
 )
+from ui.kpi_card import render_kpi_card
+from ui.tooltip import render_context_badges
 
 
 def _currency_symbol(currency: str) -> str:
@@ -26,20 +28,6 @@ def _fmt_percent(value: float) -> str:
     return f"{value * 100:,.1f}%"
 
 
-def _metric_card(label: str, value: str, trend: str | None = None, trend_class: str = "") -> None:
-    delta_html = ""
-    if trend:
-        delta_html = f'<div class="kpi-delta {trend_class}">{trend}</div>'
-    st.markdown(
-        f'<div class="kpi-card">'
-        f'<div class="kpi-label">{label}</div>'
-        f'<div class="kpi-value">{value}</div>'
-        f'{delta_html}'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-
 def render_storage(filters: dict[str, Any] | None = None) -> None:
     """Renderiza la página Storage."""
     filters = filters or {}
@@ -49,6 +37,13 @@ def render_storage(filters: dict[str, Any] | None = None) -> None:
         '<p class="page-title">Storage</p>'
         '<p class="page-subtitle">Costes de almacenamiento y capacidad real</p>',
         unsafe_allow_html=True,
+    )
+    render_context_badges(
+        [
+            ("TB reales", "El volumen refleja la capacidad y el billable storage del periodo filtrado."),
+            ("Failsafe", "Ayuda a distinguir el almacenamiento protegido del realmente facturable."),
+            ("Ranking de bases", "Identifica qué bases concentran más coste de almacenamiento."),
+        ]
     )
 
     kpis_df = get_storage_kpis(filters, currency=currency)
@@ -72,13 +67,33 @@ def render_storage(filters: dict[str, Any] | None = None) -> None:
 
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     with kpi1:
-        _metric_card("Storage Coste", _fmt_money(storage_cost, currency), "Coste real acumulado")
+        render_kpi_card(
+            "Storage Coste",
+            _fmt_money(storage_cost, currency),
+            "Coste real acumulado",
+            help_text="Coste total de Storage en el rango activo.",
+        )
     with kpi2:
-        _metric_card("TB Totales", f"{database_tb:,.2f}", f"Activo {_fmt_percent(active_share)}")
+        render_kpi_card(
+            "TB Totales",
+            f"{database_tb:,.2f}",
+            f"Activo {_fmt_percent(active_share)}",
+            help_text="Capacidad total agregada en TB para la ventana seleccionada.",
+        )
     with kpi3:
-        _metric_card("Failsafe", f"{failsafe_tb:,.2f}", "Capacidad protegida")
+        render_kpi_card(
+            "Failsafe",
+            f"{failsafe_tb:,.2f}",
+            "Capacidad protegida",
+            help_text="TB en failsafe dentro del periodo filtrado.",
+        )
     with kpi4:
-        _metric_card("Billable TB", f"{billable_tb:,.2f}", "TB facturables")
+        render_kpi_card(
+            "Billable TB",
+            f"{billable_tb:,.2f}",
+            "TB facturables",
+            help_text="TB que entran en la base de facturación del almacenamiento.",
+        )
 
     st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 

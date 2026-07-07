@@ -13,6 +13,8 @@ from queries.compute import (
     get_compute_trend,
     get_warehouse_ranking,
 )
+from ui.kpi_card import render_kpi_card
+from ui.tooltip import render_context_badges
 
 
 def _currency_symbol(currency: str) -> str:
@@ -27,20 +29,6 @@ def _fmt_percent(value: float) -> str:
     return f"{value * 100:,.1f}%"
 
 
-def _metric_card(label: str, value: str, trend: str | None = None, trend_class: str = "") -> None:
-    delta_html = ""
-    if trend:
-        delta_html = f'<div class="kpi-delta {trend_class}">{trend}</div>'
-    st.markdown(
-        f'<div class="kpi-card">'
-        f'<div class="kpi-label">{label}</div>'
-        f'<div class="kpi-value">{value}</div>'
-        f'{delta_html}'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-
 def render_compute(filters: dict[str, Any] | None = None) -> None:
     """Renderiza la página Compute."""
     filters = filters or {}
@@ -50,6 +38,13 @@ def render_compute(filters: dict[str, Any] | None = None) -> None:
         '<p class="page-title">Compute</p>'
         '<p class="page-subtitle">Costes de cómputo por warehouse y categoría real</p>',
         unsafe_allow_html=True,
+    )
+    render_context_badges(
+        [
+            ("Warehouses", "Ranking real de warehouses por coste y créditos usados."),
+            ("Cloud Services", "El ratio cloud services ayuda a detectar eficiencia y sobrecostes."),
+            ("Heatmap diario", "Mapa de calor por día para localizar picos de consumo."),
+        ]
     )
 
     kpis_df = get_compute_kpis(filters, currency=currency)
@@ -74,13 +69,33 @@ def render_compute(filters: dict[str, Any] | None = None) -> None:
 
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     with kpi1:
-        _metric_card("Compute Coste", _fmt_money(compute_cost, currency), f"{_fmt_percent(compute_ratio)} compute")
+        render_kpi_card(
+            "Compute Coste",
+            _fmt_money(compute_cost, currency),
+            f"{_fmt_percent(compute_ratio)} compute",
+            help_text="Coste total de Compute en el periodo filtrado.",
+        )
     with kpi2:
-        _metric_card("Créditos usados", f"{credits_used:,.2f}", "Consumo real de cómputo")
+        render_kpi_card(
+            "Créditos usados",
+            f"{credits_used:,.2f}",
+            "Consumo real de cómputo",
+            help_text="Créditos consumidos por los warehouses dentro del rango activo.",
+        )
     with kpi3:
-        _metric_card("Cloud Services %", _fmt_percent(cloud_ratio), "Ratio cloud sobre total")
+        render_kpi_card(
+            "Cloud Services %",
+            _fmt_percent(cloud_ratio),
+            "Ratio cloud sobre total",
+            help_text="Porcentaje de Cloud Services sobre el consumo total de Compute.",
+        )
     with kpi4:
-        _metric_card("Warehouses", f"{warehouse_count:,.0f}", "Activos en el rango")
+        render_kpi_card(
+            "Warehouses",
+            f"{warehouse_count:,.0f}",
+            "Activos en el rango",
+            help_text="Número de warehouses con actividad durante el periodo filtrado.",
+        )
 
     st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 
