@@ -1,67 +1,79 @@
-"""Página AI — Detalle de costes de Inteligencia Artificial.
+"""Página AI — Costes de servicios de IA/ML.
 
-KPIs: AI Cost, Créditos, Tokens
-Gráficos: ranking usuarios, donut servicios, trend área
+5 KPI cards + 3 chart slots.
 """
 
 from __future__ import annotations
 
+from typing import Any
+
 import streamlit as st
 
 
-def render_ai() -> None:
-    """Renderiza la página AI."""
-    st.markdown("""
-    <div style="padding: 24px 32px;">
-      <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 700; margin-bottom: 4px;">
-        🤖 AI
-      </h1>
-      <p style="color: #666688; font-size: 14px; margin-bottom: 24px;">
-        Costes de inteligencia artificial y créditos
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
+def render_ai(filters: dict[str, Any] | None = None) -> None:
+    """Renderiza la página AI.
 
-    kpi_cols = st.columns(5)
-    for i, label in enumerate(["Coste IA EUR", "Coste IA USD", "Créditos", "Tokens", "Usuarios"]):
-        with kpi_cols[i]:
-            st.markdown(f"""
-            <div class="kpi-card fade-in stagger-{i+1}">
-              <div class="kpi-label">{label}</div>
-              <div class="kpi-value">—</div>
-              <div class="kpi-delta">⏳ Próximamente (Fase 4)</div>
-            </div>
-            """, unsafe_allow_html=True)
+    Parameters
+    ----------
+    filters : dict[str, Any] | None
+        Filtros activos del sidebar.
+    """
+    st.markdown(
+        '<p class="page-title">AI</p>'
+        '<p class="page-subtitle">Costes de servicios de inteligencia artificial</p>',
+        unsafe_allow_html=True,
+    )
 
-    st.markdown('<div style="padding: 0 32px;">', unsafe_allow_html=True)
+    kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
+    with kpi1:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Coste EUR</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div></div>',
+            unsafe_allow_html=True,
+        )
+    with kpi2:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Coste USD</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div></div>',
+            unsafe_allow_html=True,
+        )
+    with kpi3:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Créditos</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div></div>',
+            unsafe_allow_html=True,
+        )
+    with kpi4:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Tokens</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div></div>',
+            unsafe_allow_html=True,
+        )
+    with kpi5:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Usuarios</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div></div>',
+            unsafe_allow_html=True,
+        )
 
-    cols = st.columns(2)
-    with cols[0]:
-        st.markdown("""
-        <div class="card fade-in stagger-3">
-          <div class="card-title">👤 Coste por Usuario</div>
-          <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Ranking barras — Próximamente
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-    with cols[1]:
-        st.markdown("""
-        <div class="card fade-in stagger-4">
-          <div class="card-title">📊 Distribución por Servicio</div>
-          <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Donut — Próximamente
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown('<div style="height: 32px;"></div>', unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="card fade-in stagger-5" style="margin-top: 16px;">
-      <div class="card-title">📈 Evolución Temporal</div>
-      <div style="height: 250px; display: flex; align-items: center; justify-content: center; color: #444466;">
-        Área apilada — Próximamente
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(
+            f'<div class="chart-card"><div class="chart-title">Coste por Servicio AI</div>'
+            f'<div class="chart-placeholder">📊 Horizontal Bar — Fase 3</div></div>',
+            unsafe_allow_html=True,
+        )
+    with col2:
+        st.markdown(
+            f'<div class="chart-card"><div class="chart-title">Evolución Consumo</div>'
+            f'<div class="chart-placeholder">📈 Stacked Area — Fase 3</div></div>',
+            unsafe_allow_html=True,
+        )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="chart-card"><div class="chart-title">Distribución por Modelo</div>'
+        f'<div class="chart-placeholder">🍩 Donut — Fase 3</div></div>',
+        unsafe_allow_html=True,
+    )

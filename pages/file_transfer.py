@@ -1,67 +1,70 @@
-"""Página File Transfer — Detalle de transferencia de datos.
+"""Página File Transfer — Costes de transferencia de datos.
 
-KPIs: Volumen TB, Coste EUR/USD
-Gráficos: área evolución, sankey rutas, donut %
+3 KPI cards + 3 chart slots.
 """
 
 from __future__ import annotations
 
+from typing import Any
+
 import streamlit as st
 
 
-def render_file_transfer() -> None:
-    """Renderiza la página File Transfer."""
-    st.markdown("""
-    <div style="padding: 24px 32px;">
-      <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 700; margin-bottom: 4px;">
-        🔄 File Transfer
-      </h1>
-      <p style="color: #666688; font-size: 14px; margin-bottom: 24px;">
-        Costes y volumen de transferencia de datos
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
+def render_file_transfer(filters: dict[str, Any] | None = None) -> None:
+    """Renderiza la página File Transfer.
 
-    kpi_cols = st.columns(3)
-    for i, label in enumerate(["Volumen TB", "Coste EUR", "Coste USD"]):
-        with kpi_cols[i]:
-            st.markdown(f"""
-            <div class="kpi-card fade-in stagger-{i+1}">
-              <div class="kpi-label">{label}</div>
-              <div class="kpi-value">—</div>
-              <div class="kpi-delta">⏳ Próximamente (Fase 4)</div>
-            </div>
-            """, unsafe_allow_html=True)
+    Parameters
+    ----------
+    filters : dict[str, Any] | None
+        Filtros activos del sidebar.
+    """
+    st.markdown(
+        '<p class="page-title">File Transfer</p>'
+        '<p class="page-subtitle">Costes de transferencia de datos</p>',
+        unsafe_allow_html=True,
+    )
 
-    st.markdown('<div style="padding: 0 32px;">', unsafe_allow_html=True)
+    kpi1, kpi2, kpi3 = st.columns(3)
+    with kpi1:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Volumen (TB)</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div>'
+            f'<div class="kpi-trend">Fase 4</div></div>',
+            unsafe_allow_html=True,
+        )
+    with kpi2:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Coste EUR</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div>'
+            f'<div class="kpi-trend">Fase 4</div></div>',
+            unsafe_allow_html=True,
+        )
+    with kpi3:
+        st.markdown(
+            f'<div class="kpi-card"><div class="kpi-label">Coste USD</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div>'
+            f'<div class="kpi-trend">Fase 4</div></div>',
+            unsafe_allow_html=True,
+        )
 
-    cols = st.columns([3, 2])
-    with cols[0]:
-        st.markdown("""
-        <div class="card fade-in stagger-3">
-          <div class="card-title">📈 Evolución Mensual</div>
-          <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Área de evolución — Próximamente
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-    with cols[1]:
-        st.markdown("""
-        <div class="card fade-in stagger-4">
-          <div class="card-title">🎯 % sobre Total</div>
-          <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Donut — Próximamente
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown('<div style="height: 32px;"></div>', unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="card fade-in stagger-5" style="margin-top: 16px;">
-      <div class="card-title">🌐 Rutas de Transferencia</div>
-      <div style="height: 300px; display: flex; align-items: center; justify-content: center; color: #444466;">
-        Sankey origen→destino — Próximamente
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(
+            f'<div class="chart-card"><div class="chart-title">Evolución Transferencia</div>'
+            f'<div class="chart-placeholder">📈 Stacked Area — Fase 3</div></div>',
+            unsafe_allow_html=True,
+        )
+    with col2:
+        st.markdown(
+            f'<div class="chart-card"><div class="chart-title">Flujo por Tipo</div>'
+            f'<div class="chart-placeholder">🔀 Sankey — Fase 3</div></div>',
+            unsafe_allow_html=True,
+        )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="chart-card"><div class="chart-title">Coste por Servicio de Transferencia</div>'
+        f'<div class="chart-placeholder">📊 Horizontal Bar — Fase 3</div></div>',
+        unsafe_allow_html=True,
+    )

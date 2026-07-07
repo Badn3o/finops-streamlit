@@ -6,25 +6,22 @@ Proporciona helpers para ejecutar queries con caché.
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from collections.abc import Sequence
 from typing import Any
 
 import pandas as pd
 import streamlit as st
+from snowflake.snowpark.session import Session
 
 from config.settings import SNOWFLAKE_CONN_NAME, WAREHOUSE
 
 
-# ── Conexión ────────────────────────────────────────────────────────
-
 @st.cache_resource
-def get_session():
+def get_session() -> Session:
     """Obtiene la sesión Snowflake (cacheada, se reusa entre reruns)."""
     conn = st.connection(SNOWFLAKE_CONN_NAME, type="sql")
     return conn.session
 
-
-# ── Helpers de ejecución SQL ────────────────────────────────────────
 
 def run_query(sql: str, params: dict[str, Any] | None = None) -> pd.DataFrame:
     """Ejecuta SQL y devuelve DataFrame. Usa el warehouse por defecto.
@@ -53,7 +50,7 @@ def run_query(sql: str, params: dict[str, Any] | None = None) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def run_query_cached(sql: str, params: tuple | None = None) -> pd.DataFrame:
+def run_query_cached(sql: str, params: tuple | Sequence | None = None) -> pd.DataFrame:
     """Versión cacheada de run_query (1h TTL).
 
     IMPORTANTE: los parámetros deben ser hashables (tupla, no dict).

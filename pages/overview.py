@@ -1,125 +1,111 @@
-"""Página Overview — Visión general de costes cloud.
+"""Página Overview — Visión general de costes FinOPS.
 
-Muestra:
-- KPI cards principales (Total Cost, Balance, Créditos)
-- Distribución por servicio (donut)
-- Evolución mensual (stacked area)
-- TAG Monthly Consumption (barras apiladas)
-- Business Line desglose (treemap)
+4 KPI cards + 4 chart slots (stacked area, donut, treemap, gauge).
 """
 
 from __future__ import annotations
 
+from typing import Any
+
 import streamlit as st
 
 
-def render_overview() -> None:
-    """Renderiza la página Overview."""
-    st.markdown("""
-    <div style="padding: 24px 32px;">
-      <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 700; margin-bottom: 4px;">
-        Overview
-      </h1>
-      <p style="color: #666688; font-size: 14px; margin-bottom: 24px;">
-        Visión general del consumo y costes cloud
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
+def render_overview(filters: dict[str, Any] | None = None) -> None:
+    """Renderiza la página Overview.
 
-    # ── Fila de KPI cards ────────────────────────────────
-    kpi_cols = st.columns(4)
+    Parameters
+    ----------
+    filters : dict[str, Any] | None
+        Filtros activos del sidebar (currency, time_intelligence, etc.)
+    """
+    st.markdown(
+        '<p class="page-title">Overview</p>'
+        '<p class="page-subtitle">Visión general del gasto cloud</p>',
+        unsafe_allow_html=True,
+    )
 
-    with kpi_cols[0]:
-        st.markdown("""
-        <div class="kpi-card fade-in">
-          <div class="kpi-label">Coste Total</div>
-          <div class="kpi-value">—</div>
-          <div class="kpi-delta positive">⏳ Cargando datos...</div>
-        </div>
-        """, unsafe_allow_html=True)
+    # ── KPI Cards ────────────────────────────────────────────────
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
-    with kpi_cols[1]:
-        st.markdown("""
-        <div class="kpi-card fade-in stagger-1">
-          <div class="kpi-label">Balance Restante</div>
-          <div class="kpi-value">—</div>
-          <div class="kpi-delta">⏳ Cargando datos...</div>
-        </div>
-        """, unsafe_allow_html=True)
+    with kpi1:
+        st.markdown(
+            f'<div class="kpi-card">'
+            f'<div class="kpi-label">Total Coste</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div>'
+            f'<div class="kpi-trend">Con datos reales en Fase 4</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
-    with kpi_cols[2]:
-        st.markdown("""
-        <div class="kpi-card fade-in stagger-2">
-          <div class="kpi-label">% Gastado</div>
-          <div class="kpi-value">—</div>
-          <div class="kpi-delta">⏳ Cargando datos...</div>
-        </div>
-        """, unsafe_allow_html=True)
+    with kpi2:
+        st.markdown(
+            f'<div class="kpi-card">'
+            f'<div class="kpi-label">Distribución</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div>'
+            f'<div class="kpi-trend">Compute · Storage · Transfer · AI</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
-    with kpi_cols[3]:
-        st.markdown("""
-        <div class="kpi-card fade-in stagger-3">
-          <div class="kpi-label">Créditos Totales</div>
-          <div class="kpi-value">—</div>
-          <div class="kpi-delta">⏳ Cargando datos...</div>
-        </div>
-        """, unsafe_allow_html=True)
+    with kpi3:
+        st.markdown(
+            f'<div class="kpi-card">'
+            f'<div class="kpi-label">Balance</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div>'
+            f'<div class="kpi-trend">Real vs Presupuesto</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
-    # ── Gráficos ─────────────────────────────────────────
-    st.markdown('<div style="padding: 0 32px;">', unsafe_allow_html=True)
+    with kpi4:
+        st.markdown(
+            f'<div class="kpi-card">'
+            f'<div class="kpi-label">TAG</div>'
+            f'<div class="kpi-value">⏳ Próximamente</div>'
+            f'<div class="kpi-trend">Tasa Anual de Gasto</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
-    row1 = st.columns([3, 2])
+    # ── Chart Grid ───────────────────────────────────────────────
+    st.markdown('<div style="height: 32px;"></div>', unsafe_allow_html=True)
 
-    with row1[0]:
-        st.markdown("""
-        <div class="card fade-in stagger-2">
-          <div class="card-title">📈 Evolución Mensual de Costes</div>
-          <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Gráfico de área apilada — Próximamente (Fase 3)
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
 
-    with row1[1]:
-        st.markdown("""
-        <div class="card fade-in stagger-3">
-          <div class="card-title">🎯 Distribución por Servicio</div>
-          <div style="height: 350px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Donut chart — Próximamente (Fase 3)
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    with col1:
+        st.markdown(
+            f'<div class="chart-card">'
+            f'<div class="chart-title">Evolución del Gasto</div>'
+            f'<div class="chart-placeholder">📈 Stacked Area Chart — Próximamente (Fase 3)</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
-    row2 = st.columns([2, 3])
+    with col2:
+        st.markdown(
+            f'<div class="chart-card">'
+            f'<div class="chart-title">Distribución por Servicio</div>'
+            f'<div class="chart-placeholder">🍩 Donut Chart — Próximamente (Fase 3)</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
-    with row2[0]:
-        st.markdown("""
-        <div class="card fade-in stagger-4">
-          <div class="card-title">🏢 Business Line</div>
-          <div style="height: 300px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Treemap — Próximamente (Fase 3)
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    col3, col4 = st.columns(2)
 
-    with row2[1]:
-        st.markdown("""
-        <div class="card fade-in stagger-5">
-          <div class="card-title">🏷️ TAG Monthly Consumption</div>
-          <div style="height: 300px; display: flex; align-items: center; justify-content: center; color: #444466;">
-            Barras apiladas — Próximamente (Fase 3)
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    with col3:
+        st.markdown(
+            f'<div class="chart-card">'
+            f'<div class="chart-title">Detalle por Categoría</div>'
+            f'<div class="chart-placeholder">🗂️ Treemap — Próximamente (Fase 3)</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
-    # ── Gauge de presupuesto ─────────────────────────────
-    st.markdown("""
-    <div class="card fade-in stagger-5" style="margin-top: 16px;">
-      <div class="card-title">💰 Presupuesto vs Real</div>
-      <div style="height: 200px; display: flex; align-items: center; justify-content: center; color: #444466;">
-        Gauge + Waterfall — Próximamente (Fase 3)
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col4:
+        st.markdown(
+            f'<div class="chart-card">'
+            f'<div class="chart-title">Budget vs Actual</div>'
+            f'<div class="chart-placeholder">🎯 Gauge Chart — Próximamente (Fase 3)</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )

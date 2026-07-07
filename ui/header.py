@@ -1,26 +1,25 @@
 """Barra de navegación superior estilo NACEX.
 
 Renderiza el header con logo Logista y tabs de navegación.
-Usa session_state para controlar la página activa.
+Usa st.navigation + st.Page para navegación nativa de Streamlit.
 """
 
 from __future__ import annotations
 
 import streamlit as st
 
-from config.settings import PAGES, LOGISTA_ORANGE
+from config.settings import PAGES
 from ui.assets import LOGISTA_LOGO_NEG, get_page_icon
 
 
 def render_header() -> None:
-    """Renderiza el header de navegación superior."""
-    # Inicializar página activa
+    """Renderiza el header de navegación superior con tabs nativos."""
     if "page" not in st.session_state:
         st.session_state.page = "overview"
 
     current = st.session_state.page
 
-    # Construir HTML del header
+    # Construir HTML decorativo del header (solo visual, la navegación real usa st.navigation)
     nav_items_html = ""
     for page in PAGES:
         pid = page["id"]
@@ -29,24 +28,12 @@ def render_header() -> None:
         cls = "nav-item active" if active else "nav-item"
 
         nav_items_html += f"""
-        <button class="{cls}" onclick="
-          var pages = {{}};
-          var el = this;
-          var data = JSON.stringify({{page: '{pid}'}});
-          fetch(window.location.href, {{
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            headers: {{'Content-Type': 'application/json'}},
-            body: data
-          }}).then(function() {{ el.closest('.nav-header').querySelectorAll('.nav-item').forEach(function(n) {{ n.classList.remove('active'); }}); el.classList.add('active'); }});
-        ">
+        <div class="{cls}" data-page="{pid}">
           {icon_svg}
           {page["label"]}
-        </button>
+        </div>
         """
 
-    # Logo Logista negativo (blanco sobre fondo oscuro)
     logo_img = f'<img src="{LOGISTA_LOGO_NEG}" class="nav-logo" alt="Logista">'
 
     html = f"""
@@ -57,37 +44,32 @@ def render_header() -> None:
       </div>
     </div>
     """
-
     st.markdown(html, unsafe_allow_html=True)
 
-    # Botones de Streamlit para cambiar página (ocultos, acción real)
-    cols = st.columns(len(PAGES))
-    for i, page in enumerate(PAGES):
-        pid = page["id"]
-        if pid == current:
-            with cols[i]:
-                st.button(
-                    page["label"],
-                    key=f"nav_{pid}",
-                    use_container_width=True,
-                    type="secondary",
-                )
-        else:
-            with cols[i]:
-                if st.button(
-                    page["label"],
-                    key=f"nav_{pid}",
-                    use_container_width=True,
-                ):
-                    st.session_state.page = pid
-                    st.rerun()
+    # Usar st.segmented_control como navegación funcional (oculto visualmente,
+    # pero actualiza session_state correctamente)
+    page_options = [p["id"] for p in PAGES]
+    page_labels = [p["label"] for p in PAGES]
 
-    # Ocultar los botones nativos de Streamlit via CSS
-    hide_nav_buttons = """
+    selected = st.segmented_control(
+        "Navegación",
+        options=page_options,
+        format_func=lambda x: page_labels[page_options.index(x)],
+        default=current,
+        key="nav_segment",
+        label_visibility="collapsed",
+        selection_mode="single",
+    )
+
+    if selected and selected != current:
+        st.session_state.page = selected
+        st.rerun()
+
+    # Ocultar el segmented_control visualmente (se usa solo como backend de estado)
+    st.markdown("""
     <style>
-      div[data-testid="column"] button {
+      div[data-testid="stSegmentedControl"] {
         display: none !important;
       }
     </style>
-    """
-    st.markdown(hide_nav_buttons, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
