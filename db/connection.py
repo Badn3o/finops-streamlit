@@ -15,39 +15,66 @@ from config.settings import SNOWFLAKE_CONN_NAME, WAREHOUSE
 
 
 @st.cache_resource
-def get_session() -> Any:
-    """Obtiene la sesión/conexión Snowflake (cacheada, se reusa entre reruns).
+def get_connection() -> Any:
+    """Obtiene la conexión Snowflake/Streamlit cacheada."""
+    return st.connection(SNOWFLAKE_CONN_NAME)
 
-    En runtimes con Snowpark devuelve la sesión activa; en runtimes con
-    SnowflakeConnection devuelve la conexión subyacente para compatibilidad.
+
+def _resolve_runtime() -> Any:
+    """Devuelve una sesión Snowpark o una conexión Snowflake válida.
+
+    Streamlit expone dos APIs distintas según el runtime:
+    - SnowflakeConnection: tiene `query()` y `cursor()`
+    - Snowpark/SiS: la sesión puede llegar como propiedad o método `session`
+
+    Esta función normaliza ambos casos y evita devolver el método sin invocar.
     """
-    conn = st.connection(SNOWFLAKE_CONN_NAME)
-    return getattr(conn, "session", None) or conn
+    conn = get_connection()
+    session_attr = getattr(conn, "session", None)
+    if callable(session_attr):
+        try:
+            session_attr = session_attr()
+        except TypeError:
+            session_attr = None
+    if session_attr is not None and hasattr(session_attr, "sql"):
+        return session_attr
+    return conn
 
 
 def _execute_df(sql: str, params: dict[str, Any] | tuple[Any, ...] | None = None) -> pd.DataFrame:
     """Ejecuta SQL adaptándose a Snowpark Session o SnowflakeConnection."""
-    runtime = get_session()
+    runtime = _resolve_runtime()
+
+    if hasattr(runtime, "query"):
+        try:
+            result = runtime.query(sql, params=params) if params is not None else runtime.query(sql)
+        except TypeError:
+            result = runtime.query(sql)
+        return result if isinstance(result, pd.DataFrame) else pd.DataFrame(result)
+
     if hasattr(runtime, "sql"):
         result = runtime.sql(sql, params=params).collect() if params is not None else runtime.sql(sql).collect()
         if not result:
             return pd.DataFrame()
         return pd.DataFrame([r.as_dict() for r in result])
 
-    if params is None:
+    if hasattr(runtime, "cursor"):
+        if params is None:
+            with runtime.cursor() as cur:
+                cur.execute(sql)
+                if cur.description is None:
+                    return pd.DataFrame()
+                cols = [d[0] for d in cur.description]
+                return pd.DataFrame(cur.fetchall(), columns=cols)
+
         with runtime.cursor() as cur:
-            cur.execute(sql)
+            cur.execute(sql, params)
             if cur.description is None:
                 return pd.DataFrame()
             cols = [d[0] for d in cur.description]
             return pd.DataFrame(cur.fetchall(), columns=cols)
 
-    with runtime.cursor() as cur:
-        cur.execute(sql, params)
-        if cur.description is None:
-            return pd.DataFrame()
-        cols = [d[0] for d in cur.description]
-        return pd.DataFrame(cur.fetchall(), columns=cols)
+    raise TypeError(f"Unsupported Snowflake runtime: {type(runtime)!r}")
 
 
 def run_query(sql: str, params: dict[str, Any] | None = None) -> pd.DataFrame:
@@ -65,7 +92,7 @@ def run_query(sql: str, params: dict[str, Any] | None = None) -> pd.DataFrame:
     pd.DataFrame
         Resultado de la consulta
     """
-    runtime = get_session()
+    runtime = _resolve_runtime()
     if hasattr(runtime, "use_warehouse"):
         runtime.use_warehouse(WAREHOUSE)
     return _execute_df(sql, params=params)
@@ -77,7 +104,7 @@ def run_query_cached(sql: str, params: tuple[Hashable, ...] | None = None) -> pd
 
     IMPORTANTE: los parámetros deben ser hashables (tupla, no dict).
     """
-    runtime = get_session()
+    runtime = _resolve_runtime()
     if hasattr(runtime, "use_warehouse"):
         runtime.use_warehouse(WAREHOUSE)
     return _execute_df(sql, params=params)
