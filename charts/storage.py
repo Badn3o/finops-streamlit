@@ -33,7 +33,7 @@ def _build_ranking(ranking_df: pd.DataFrame, currency: str) -> go.Figure:
     fig = go.Figure(
         go.Bar(
             x=df["cost_value"],
-            y=df["DATABASE_NAME"],
+            y=df["database_name"],
             orientation="h",
             marker=dict(
                 color=df["cost_value"],

@@ -14,6 +14,22 @@ import streamlit as st
 from config.settings import SNOWFLAKE_CONN_NAME, WAREHOUSE
 
 
+def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Normaliza nombres de columnas Snowflake para la capa Python.
+
+    Snowflake devuelve alias no entrecomillados en MAYÚSCULAS (`PERIOD_START`),
+    mientras que las páginas/charts usan convenciones Python snake_case
+    (`period_start`). Centralizar la normalización evita fallos por runtime
+    (`Snowpark`, `SnowflakeConnection.query` o `cursor`) y mantiene una única
+    convención aguas arriba.
+    """
+    if df.empty:
+        return df
+    df = df.copy()
+    df.columns = [str(col).lower() for col in df.columns]
+    return df
+
+
 @st.cache_resource
 def get_connection() -> Any:
     """Obtiene la conexión Snowflake/Streamlit cacheada."""
@@ -50,13 +66,14 @@ def _execute_df(sql: str, params: dict[str, Any] | tuple[Any, ...] | None = None
             result = runtime.query(sql, params=params) if params is not None else runtime.query(sql)
         except TypeError:
             result = runtime.query(sql)
-        return result if isinstance(result, pd.DataFrame) else pd.DataFrame(result)
+        df = result if isinstance(result, pd.DataFrame) else pd.DataFrame(result)
+        return _normalize_columns(df)
 
     if hasattr(runtime, "sql"):
         result = runtime.sql(sql, params=params).collect() if params is not None else runtime.sql(sql).collect()
         if not result:
             return pd.DataFrame()
-        return pd.DataFrame([r.as_dict() for r in result])
+        return _normalize_columns(pd.DataFrame([r.as_dict() for r in result]))
 
     if hasattr(runtime, "cursor"):
         if params is None:
@@ -65,14 +82,14 @@ def _execute_df(sql: str, params: dict[str, Any] | tuple[Any, ...] | None = None
                 if cur.description is None:
                     return pd.DataFrame()
                 cols = [d[0] for d in cur.description]
-                return pd.DataFrame(cur.fetchall(), columns=cols)
+                return _normalize_columns(pd.DataFrame(cur.fetchall(), columns=cols))
 
         with runtime.cursor() as cur:
             cur.execute(sql, params)
             if cur.description is None:
                 return pd.DataFrame()
             cols = [d[0] for d in cur.description]
-            return pd.DataFrame(cur.fetchall(), columns=cols)
+            return _normalize_columns(pd.DataFrame(cur.fetchall(), columns=cols))
 
     raise TypeError(f"Unsupported Snowflake runtime: {type(runtime)!r}")
 

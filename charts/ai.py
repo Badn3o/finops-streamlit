@@ -31,7 +31,7 @@ def _build_service_breakdown(service_df: pd.DataFrame, currency: str) -> go.Figu
 
     fig = go.Figure(
         go.Pie(
-            labels=service_df["SERVICE_TYPE"],
+            labels=service_df["service_type"],
             values=service_df["cost_value"],
             hole=0.58,
             marker=dict(colors=COLORWAY),
@@ -90,7 +90,7 @@ def _build_ranking(user_ranking_df: pd.DataFrame, currency: str) -> go.Figure:
     fig = go.Figure(
         go.Bar(
             x=df["cost_value"],
-            y=df["USER_NAME"],
+            y=df["user_name"],
             orientation="h",
             marker=dict(
                 color=df["cost_value"],

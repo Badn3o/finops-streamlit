@@ -34,7 +34,7 @@ def _build_ranking(ranking_df: pd.DataFrame, currency: str) -> go.Figure:
     fig = go.Figure(
         go.Bar(
             x=df["cost_value"],
-            y=df["WAREHOUSE_NAME"],
+            y=df["warehouse_name"],
             orientation="h",
             marker=dict(
                 color=df["cost_value"],
@@ -60,7 +60,7 @@ def _build_trend(trend_df: pd.DataFrame, currency: str) -> go.Figure:
         df,
         x="period_label",
         y="cost_value",
-        color="COMPUTE_CATEGORY",
+        color="compute_category",
         color_discrete_sequence=COLORWAY,
         title=f"Evolución compute por categoría ({currency})",
     )
@@ -77,14 +77,14 @@ def _build_heatmap(heatmap_df: pd.DataFrame, currency: str) -> go.Figure:
         return empty_figure("Sin datos para el heatmap diario", height=380)
 
     df = heatmap_df.copy()
-    df["USAGE_DATE"] = pd.to_datetime(df["USAGE_DATE"], errors="coerce")
-    df = df.dropna(subset=["USAGE_DATE"])
+    df["usage_date"] = pd.to_datetime(df["usage_date"], errors="coerce")
+    df = df.dropna(subset=["usage_date"])
     if df.empty:
         return empty_figure("Sin fechas válidas para el heatmap", height=380)
 
     weekday_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    df["month"] = df["USAGE_DATE"].dt.to_period("M").astype(str)
-    df["weekday"] = df["USAGE_DATE"].dt.strftime("%a")
+    df["month"] = df["usage_date"].dt.to_period("M").astype(str)
+    df["weekday"] = df["usage_date"].dt.strftime("%a")
     pivot = (
         df.pivot_table(index="month", columns="weekday", values="cost_value", aggfunc="sum", fill_value=0)
         .reindex(columns=weekday_order)

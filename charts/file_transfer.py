@@ -121,15 +121,15 @@ def _build_ranking(route_df: pd.DataFrame, currency: str) -> go.Figure:
     df = route_df.copy().sort_values("cost_value", ascending=False).head(10)
     df = df.sort_values("cost_value")
     route_label = (
-        df["SOURCE_CLOUD"].astype(str)
+        df["source_cloud"].astype(str)
         + ":"
-        + df["SOURCE_REGION"].astype(str)
+        + df["source_region"].astype(str)
         + " → "
-        + df["TARGET_CLOUD"].astype(str)
+        + df["target_cloud"].astype(str)
         + ":"
-        + df["TARGET_REGION"].astype(str)
+        + df["target_region"].astype(str)
         + " · "
-        + df["TRANSFER_TYPE"].astype(str)
+        + df["transfer_type"].astype(str)
     )
     fig = go.Figure(
         go.Bar(

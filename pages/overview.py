@@ -75,10 +75,10 @@ def render_overview(filters: dict[str, Any] | None = None) -> None:
     tag_name = "—"
     tag_value = 0.0
     if not tag_df.empty:
-        tag_totals = tag_df.groupby("TAG_NAME", as_index=False)["cost_value"].sum().sort_values("cost_value", ascending=False)
+        tag_totals = tag_df.groupby("tag_name", as_index=False)["cost_value"].sum().sort_values("cost_value", ascending=False)
         if not tag_totals.empty:
             top_tag = tag_totals.iloc[0]
-            tag_name = str(top_tag["TAG_NAME"])
+            tag_name = str(top_tag["tag_name"])
             tag_value = float(top_tag["cost_value"] or 0.0)
 
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)

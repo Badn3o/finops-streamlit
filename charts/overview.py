@@ -109,7 +109,7 @@ def _build_treemap(treemap_df: pd.DataFrame, currency: str) -> go.Figure:
 
     fig = px.treemap(
         treemap_df,
-        path=[px.Constant("FinOPS"), "BUSINESS_LINE", "ENVIRONMENT", "LAYER"],
+        path=[px.Constant("FinOPS"), "business_line", "environment", "layer"],
         values="cost_value",
         color="cost_value",
         color_continuous_scale=[LOGISTA_BLUE, TRANSITION_COLORS["purple"], LOGISTA_ORANGE],
