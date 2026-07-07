@@ -235,6 +235,12 @@ def inject_global_css() -> None:
         height: 28px;
         opacity: 0.9;
       }}
+      .nav-header .nav-title {{
+        color: {TEXT_PRIMARY};
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+      }}
       .nav-header .nav-items {{
         display: flex;
         gap: 4px;

@@ -10,6 +10,7 @@ canvas puro para mayor compatibilidad (evita bugs SVG mask en Chromium).
 from __future__ import annotations
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 def render_cover() -> None:
@@ -28,12 +29,16 @@ def render_cover() -> None:
     from ui.assets import LOGISTA_LOGO_NEG
 
     html = f"""
-    <!DOCTYPE html>
     <style>
       * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+      html {{
+        background: #0A0A0F;
+        width: 100%; height: 100%;
+        overflow: hidden;
+      }}
       body {{
         background: #0A0A0F;
-        width: 100vw; height: 100vh;
+        width: 100%; height: 100%;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
         font-family: 'Inter', system-ui, sans-serif;
@@ -350,4 +355,4 @@ def render_cover() -> None:
     </script>
     """
 
-    st.markdown(html, unsafe_allow_html=True)
+    components.html(html, height=760, scrolling=False)

@@ -7,6 +7,7 @@ sidebar de filtros, navegación y carga de páginas.
 from __future__ import annotations
 
 import streamlit as st
+from time import perf_counter, sleep
 
 from ui.cover import render_cover
 from ui.global_css import inject_global_css
@@ -27,6 +28,7 @@ st.set_page_config(
 # SPLASH COVER (compatible con SiS: sin st.rerun() ni session_state)
 # ═══════════════════════════════════════════════════════════════════
 splash_placeholder = st.empty()
+splash_started_at = perf_counter()
 with splash_placeholder.container():
     render_cover()
 
@@ -70,4 +72,9 @@ try:
         from pages.overview import render_overview
         render_overview(filters=filters)
 finally:
+    # Deja que la portada se vea al menos un instante y evita el flash/cuadro
+    # blanco inicial de SiS mientras hidrata la app.
+    remaining = 1.2 - (perf_counter() - splash_started_at)
+    if remaining > 0:
+        sleep(remaining)
     splash_placeholder.empty()
