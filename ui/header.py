@@ -50,7 +50,9 @@ def render_header() -> None:
 
     if selected and selected != current:
         st.session_state.page = selected
-        st.rerun()
+        rerun = getattr(st, "rerun", None) or getattr(st, "experimental_rerun", None)
+        if callable(rerun):
+            rerun()
 
     st.markdown("""
     <style>

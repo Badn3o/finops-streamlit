@@ -12,6 +12,8 @@ from typing import Any
 
 import streamlit as st
 
+from ui.assets import LOGISTA_LOGO_NEG
+
 
 def _time_intelligence_range(selection: str) -> tuple[date, date]:
     """Map a time-intelligence label to a concrete date window."""
@@ -65,10 +67,14 @@ def render_sidebar_filters() -> dict[str, Any]:
 
     with st.sidebar:
         st.markdown(
-            f'<div style="padding: 24px 0 8px; text-align: center;">'
-            f'<span style="color: #8888AA; font-size: 11px; font-weight: 600; '
-            f'text-transform: uppercase; letter-spacing: 1.5px;">Filtros</span>'
-            f'</div>',
+            f"""
+            <div class="sb-brand">
+              <img src="{LOGISTA_LOGO_NEG}" class="sb-logo" alt="Logista">
+              <div class="sb-title">Baikal | FinOps</div>
+              <div class="sb-subtitle">CONTROL DE COSTES CLOUD</div>
+            </div>
+            <div class="sb-section">Filtros globales</div>
+            """,
             unsafe_allow_html=True,
         )
 

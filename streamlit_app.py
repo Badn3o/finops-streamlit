@@ -54,22 +54,22 @@ try:
     page = st.session_state.get("page", "overview")
 
     if page == "overview":
-        from pages.overview import render_overview
+        from app_pages.overview import render_overview
         render_overview(filters=filters)
     elif page == "compute":
-        from pages.compute import render_compute
+        from app_pages.compute import render_compute
         render_compute(filters=filters)
     elif page == "storage":
-        from pages.storage import render_storage
+        from app_pages.storage import render_storage
         render_storage(filters=filters)
     elif page == "filetransfer":
-        from pages.file_transfer import render_file_transfer
+        from app_pages.file_transfer import render_file_transfer
         render_file_transfer(filters=filters)
     elif page == "ai":
-        from pages.ai import render_ai
+        from app_pages.ai import render_ai
         render_ai(filters=filters)
     else:
-        from pages.overview import render_overview
+        from app_pages.overview import render_overview
         render_overview(filters=filters)
 finally:
     # Deja que la portada se vea al menos un instante y evita el flash/cuadro

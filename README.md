@@ -23,7 +23,7 @@ finops_app/
 ├── semantic/
 ├── charts/
 ├── ui/
-└── pages/
+└── app_pages/             # páginas internas; NO usar pages/ para evitar navegación automática SiS
 ```
 
 ## Despliegue

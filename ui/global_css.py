@@ -232,8 +232,10 @@ def inject_global_css() -> None:
         z-index: 100;
       }}
       .nav-header .nav-logo {{
-        height: 28px;
-        opacity: 0.9;
+        height: 46px;
+        max-width: 220px;
+        width: auto;
+        opacity: 1;
       }}
       .nav-header .nav-title {{
         color: {TEXT_PRIMARY};
@@ -275,16 +277,85 @@ def inject_global_css() -> None:
       }}
 
       /* ── Filters sidebar ────────────────────────────── */
+      section[data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, #0A0A0F 0%, #121225 52%, #180F2A 100%) !important;
+        border-right: 1px solid rgba(252,76,2,0.26) !important;
+        box-shadow: 8px 0 32px rgba(0,0,0,0.32);
+      }}
+      section[data-testid="stSidebar"] > div:first-child {{
+        padding-top: 0 !important;
+      }}
+      section[data-testid="stSidebar"] [data-testid="stSidebarNav"] {{
+        display: none !important;
+      }}
+      .sb-brand {{
+        margin: 0 -8px 16px;
+        padding: 22px 14px 18px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        background:
+          radial-gradient(circle at 20% 0%, rgba(40,0,255,0.32), transparent 42%),
+          radial-gradient(circle at 100% 0%, rgba(252,76,2,0.24), transparent 38%),
+          linear-gradient(135deg, rgba(40,0,255,0.16), rgba(252,76,2,0.08));
+      }}
+      .sb-logo {{
+        width: 168px;
+        max-width: 92%;
+        height: auto;
+        display: block;
+        margin: 0 auto 12px;
+        filter: drop-shadow(0 10px 24px rgba(0,0,0,0.42));
+      }}
+      .sb-title {{
+        color: {TEXT_PRIMARY};
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+      }}
+      .sb-subtitle {{
+        color: {LOGISTA_ORANGE};
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        margin-top: 4px;
+      }}
+      .sb-section {{
+        color: {LOGISTA_ORANGE};
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.6px;
+        margin: 0 0 14px;
+        padding: 0 2px 8px;
+        border-bottom: 1px solid rgba(252,76,2,0.22);
+      }}
       .filter-section {{
         margin-bottom: 24px;
       }}
       .filter-label {{
         color: {TEXT_SECONDARY};
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 8px;
+        letter-spacing: 1.2px;
+        margin: 18px 0 8px;
+      }}
+      section[data-testid="stSidebar"] div[data-baseweb="select"] > div,
+      section[data-testid="stSidebar"] div[data-baseweb="popover"] > div,
+      section[data-testid="stSidebar"] [data-testid="stDateInput"] input {{
+        background: rgba(255,255,255,0.045) !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        border-radius: 10px !important;
+        color: {TEXT_PRIMARY} !important;
+      }}
+      section[data-testid="stSidebar"] div[data-baseweb="select"] > div:hover,
+      section[data-testid="stSidebar"] [data-testid="stDateInput"] input:hover {{
+        border-color: rgba(252,76,2,0.44) !important;
+      }}
+      section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+      section[data-testid="stSidebar"] label,
+      section[data-testid="stSidebar"] span {{
+        color: {TEXT_SECONDARY};
       }}
 
       /* ── Metric columns ─────────────────────────────── */
