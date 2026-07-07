@@ -9,15 +9,16 @@ from __future__ import annotations
 # ── Conexión Snowflake ──────────────────────────────────────────────
 SNOWFLAKE_CONN_NAME = "snowflake"
 WAREHOUSE = "PRO_BI_WH"
-DATABASE = "PRO_0_STAGING_DB"
-SCHEMA = ""  # Se asigna en tiempo de ejecución con USE SCHEMA
+DATABASE = "PRO_3_GOLD_DB"
+SCHEMA = "FINOPS"
+
+FINOPS_DATABASE = DATABASE
+FINOPS_SCHEMA = SCHEMA
 
 # Schemas conocidos donde pueden estar las tablas FinOPS
 FIN_OPS_SCHEMAS = [
+    "FINOPS",
     "FIN_OPS",
-    "COST_MANAGEMENT",
-    "COST_CONTROL",
-    "BAIKAL_COST",
 ]
 
 # ── Tablas del modelo ───────────────────────────────────────────────
@@ -26,28 +27,41 @@ TABLAS = {
     "DIM_DATABASE": "DIM_DATABASE",
     "DIM_COMPUTE_TYPE": "DIM_COMPUTE_TYPE",
     "DIM_OBJECT": "DIM_OBJECT",
+    "DIM_SCHEMA": "DIM_SCHEMA",
     "DIM_SCHEMA_EFFECTIVE_TAG": "DIM_SCHEMA_EFFECTIVE_TAG",
+    "DIM_OBJECT_EFFECTIVE_TAG": "DIM_OBJECT_EFFECTIVE_TAG",
+    "DIM_WAREHOUSE": "DIM_WAREHOUSE",
+    "DIM_USER": "DIM_USER",
+    "DIM_TAG": "DIM_TAG",
+    "DIM_TAG_VALUE": "DIM_TAG_VALUE",
     "DIM_FX_RATE": "DIM_FX_RATE",
     "FCT_COMPUTE_COST": "FCT_COMPUTE_COST",
+    "FCT_WAREHOUSE_COST": "FCT_WAREHOUSE_COST",
+    "FCT_WAREHOUSE_TAG_COST": "FCT_WAREHOUSE_TAG_COST",
     "FCT_DATABASE_STORAGE": "FCT_DATABASE_STORAGE",
+    "FCT_STORAGE_TOTAL": "FCT_STORAGE_TOTAL",
+    "FCT_TAG_MONTHLY_COST": "FCT_TAG_MONTHLY_COST",
+    "FCT_BL_ENV_TAG_COST": "FCT_BL_ENV_TAG_COST",
+    "FCT_BL_ENV_SERVICE_COST": "FCT_BL_ENV_SERVICE_COST",
     "FCT_DATA_TRANSFER": "FCT_DATA_TRANSFER",
     "FCT_AI_COST": "FCT_AI_COST",
     "FCT_AI_USER_COST": "FCT_AI_USER_COST",
-    "FCT_BL_ENV_TAG_COST": "FCT_BL_ENV_TAG_COST",
-    "FCT_TAG_MONTHLY_COST": "FCT_TAG_MONTHLY_COST",
-    "FCT_STORAGE_TOTAL": "FCT_STORAGE_TOTAL",
-    "FCT_WAREHOUSE_COST": "FCT_WAREHOUSE_COST",
-    "FCT_WAREHOUSE_TAG_COST": "FCT_WAREHOUSE_TAG_COST",
+    "FCT_AI_SESSION_COST": "FCT_AI_SESSION_COST",
     "FCT_OBJECT_COST": "FCT_OBJECT_COST",
     "FCT_QUERY_COST": "FCT_QUERY_COST",
+    "FCT_QUERY_SESSION_COST": "FCT_QUERY_SESSION_COST",
     "FCT_REMAINING_BALANCE_DAILY": "FCT_REMAINING_BALANCE_DAILY",
+    "FCT_REPLICATION_COST": "FCT_REPLICATION_COST",
+    "FCT_SCHEMA_STORAGE": "FCT_SCHEMA_STORAGE",
+    "FCT_STAGE_STORAGE": "FCT_STAGE_STORAGE",
+    "FCT_TABLE_STORAGE": "FCT_TABLE_STORAGE",
 }
 
 # ── Paleta Logista ──────────────────────────────────────────────────
 LOGISTA_BLUE = "#2800FF"
 LOGISTA_BLUE_RGB = "40, 0, 255"
 LOGISTA_ORANGE = "#FC4C02"
-LOGISTA_ORANGE_RGB = "252, 77, 2"
+LOGISTA_ORANGE_RGB = "252, 76, 2"
 LOGISTA_BLACK = "#000000"
 LOGISTA_WHITE = "#FFFFFF"
 
@@ -94,20 +108,22 @@ DISPLAY_FOLDERS = [
 
 # ── Páginas de la app ──────────────────────────────────────────────
 PAGES = [
-    {"id": "overview",     "label": "Overview",      "icon": "📊"},
-    {"id": "compute",      "label": "Compute",       "icon": "⚡"},
-    {"id": "storage",      "label": "Storage",       "icon": "💾"},
+    {"id": "overview", "label": "Overview", "icon": "📊"},
+    {"id": "compute", "label": "Compute", "icon": "⚡"},
+    {"id": "storage", "label": "Storage", "icon": "💾"},
     {"id": "filetransfer", "label": "File Transfer", "icon": "🔄"},
-    {"id": "ai",           "label": "AI",            "icon": "🤖"},
+    {"id": "ai", "label": "AI", "icon": "🤖"},
 ]
 
 # ── Opciones de filtro ─────────────────────────────────────────────
+FILTER_ALL = "All"
 CURRENCIES = ["EUR", "USD"]
 TIME_INTELLIGENCE_OPTIONS = ["Current", "MTD", "6 MTD", "YTD", "FYTD"]
 FORMAT_OPTIONS = ["MONTH", "QUARTER", "YEAR"]
 DEFAULT_TIME_INTELLIGENCE = "6 MTD"
 DEFAULT_CURRENCY = "EUR"
 DEFAULT_FORMAT = "MONTH"
+DEFAULT_DATE_RANGE_MONTHS = 6
 
 # ── Budget / Balance ───────────────────────────────────────────────
 TOTAL_BALANCE_EUR = 458460.0

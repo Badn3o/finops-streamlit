@@ -19,7 +19,7 @@ from config.settings import SNOWFLAKE_CONN_NAME, WAREHOUSE
 @st.cache_resource
 def get_session() -> Session:
     """Obtiene la sesión Snowflake (cacheada, se reusa entre reruns)."""
-    conn = st.connection(SNOWFLAKE_CONN_NAME, type="sql")
+    conn = st.connection(SNOWFLAKE_CONN_NAME)
     return conn.session
 
 
@@ -98,7 +98,7 @@ def get_schema_info() -> dict[str, list[str]]:
     dict[str, list[str]]
         {nombre_tabla: [col1, col2, ...]}
     """
-    from config.settings import TABLAS
+    from config.settings import DATABASE, TABLAS
 
     session = get_session()
     schema = discover_finops_schema()
@@ -109,7 +109,7 @@ def get_schema_info() -> dict[str, list[str]]:
     for table_key in TABLAS:
         try:
             result = session.sql(
-                f"DESC TABLE {schema}.{table_key}"
+                f"DESC TABLE {DATABASE}.{schema}.{table_key}"
             ).collect()
             info[table_key] = [r["name"] for r in result]
         except Exception:
