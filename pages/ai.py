@@ -1,7 +1,4 @@
-"""Página AI — Costes de servicios de IA/ML.
-
-5 KPI cards + 3 chart slots.
-"""
+"""Página AI — Costes de servicios de IA/ML."""
 
 from __future__ import annotations
 
@@ -9,71 +6,89 @@ from typing import Any
 
 import streamlit as st
 
+from charts.ai import build_ai_figures
+from queries.ai import (
+    get_ai_kpis,
+    get_ai_service_breakdown,
+    get_ai_trend,
+    get_ai_user_ranking,
+)
 
-def render_ai(filters: dict[str, Any] | None = None) -> None:
-    """Renderiza la página AI.
 
-    Parameters
-    ----------
-    filters : dict[str, Any] | None
-        Filtros activos del sidebar.
-    """
+def _currency_symbol(currency: str) -> str:
+    return "€" if str(currency).upper() == "EUR" else "$"
+
+
+def _fmt_money(value: float, currency: str) -> str:
+    return f"{_currency_symbol(currency)}{value:,.2f}"
+
+
+def _metric_card(label: str, value: str, trend: str | None = None, trend_class: str = "") -> None:
+    delta_html = ""
+    if trend:
+        delta_html = f'<div class="kpi-delta {trend_class}">{trend}</div>'
     st.markdown(
-        '<p class="page-title">AI</p>'
-        '<p class="page-subtitle">Costes de servicios de inteligencia artificial</p>',
+        f'<div class="kpi-card">'
+        f'<div class="kpi-label">{label}</div>'
+        f'<div class="kpi-value">{value}</div>'
+        f'{delta_html}'
+        f'</div>',
         unsafe_allow_html=True,
     )
+
+
+def render_ai(filters: dict[str, Any] | None = None) -> None:
+    """Renderiza la página AI."""
+    filters = filters or {}
+    currency = str(filters.get("currency", "EUR")).upper()
+
+    st.markdown(
+        '<p class="page-title">AI</p>'
+        '<p class="page-subtitle">Consumo real de servicios de inteligencia artificial</p>',
+        unsafe_allow_html=True,
+    )
+
+    kpis_eur = get_ai_kpis(filters, currency="EUR")
+    kpis_usd = get_ai_kpis(filters, currency="USD")
+    service_df = get_ai_service_breakdown(filters, currency=currency)
+    trend_df = get_ai_trend(filters, currency=currency)
+    user_ranking_df = get_ai_user_ranking(filters, currency=currency)
+
+    figures = build_ai_figures(
+        kpis_df=kpis_eur,
+        service_df=service_df,
+        trend_df=trend_df,
+        user_ranking_df=user_ranking_df,
+        currency=currency,
+    )
+
+    row_eur = kpis_eur.iloc[0] if not kpis_eur.empty else {}
+    row_usd = kpis_usd.iloc[0] if not kpis_usd.empty else {}
+    cost_eur = float(row_eur.get("cost_value", 0.0) or 0.0)
+    cost_usd = float(row_usd.get("cost_value", 0.0) or 0.0)
+    credits_used = float(row_eur.get("credits_used", 0.0) or 0.0)
+    tokens = float(row_eur.get("tokens", 0.0) or 0.0)
+    token_credits = float(row_eur.get("token_credits", 0.0) or 0.0)
+    user_count = float(row_eur.get("user_count", 0.0) or 0.0)
 
     kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
     with kpi1:
-        st.markdown(
-            f'<div class="kpi-card"><div class="kpi-label">Coste EUR</div>'
-            f'<div class="kpi-value">⏳ Próximamente</div></div>',
-            unsafe_allow_html=True,
-        )
+        _metric_card("Coste EUR", _fmt_money(cost_eur, "EUR"), "Moneda base")
     with kpi2:
-        st.markdown(
-            f'<div class="kpi-card"><div class="kpi-label">Coste USD</div>'
-            f'<div class="kpi-value">⏳ Próximamente</div></div>',
-            unsafe_allow_html=True,
-        )
+        _metric_card("Coste USD", _fmt_money(cost_usd, "USD"), "Moneda secundaria")
     with kpi3:
-        st.markdown(
-            f'<div class="kpi-card"><div class="kpi-label">Créditos</div>'
-            f'<div class="kpi-value">⏳ Próximamente</div></div>',
-            unsafe_allow_html=True,
-        )
+        _metric_card("Créditos", f"{credits_used:,.2f}", "Crédito real usado")
     with kpi4:
-        st.markdown(
-            f'<div class="kpi-card"><div class="kpi-label">Tokens</div>'
-            f'<div class="kpi-value">⏳ Próximamente</div></div>',
-            unsafe_allow_html=True,
-        )
+        _metric_card("Tokens", f"{tokens:,.0f}", f"{token_credits:,.2f} token credits")
     with kpi5:
-        st.markdown(
-            f'<div class="kpi-card"><div class="kpi-label">Usuarios</div>'
-            f'<div class="kpi-value">⏳ Próximamente</div></div>',
-            unsafe_allow_html=True,
-        )
+        _metric_card("Usuarios", f"{user_count:,.0f}", "Consumidores activos")
 
-    st.markdown('<div style="height: 32px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown(
-            f'<div class="chart-card"><div class="chart-title">Coste por Servicio AI</div>'
-            f'<div class="chart-placeholder">📊 Horizontal Bar — Fase 3</div></div>',
-            unsafe_allow_html=True,
-        )
+        st.plotly_chart(figures["service_breakdown"], use_container_width=True, config={"displayModeBar": False})
     with col2:
-        st.markdown(
-            f'<div class="chart-card"><div class="chart-title">Evolución Consumo</div>'
-            f'<div class="chart-placeholder">📈 Stacked Area — Fase 3</div></div>',
-            unsafe_allow_html=True,
-        )
+        st.plotly_chart(figures["trend"], use_container_width=True, config={"displayModeBar": False})
 
-    st.markdown(
-        f'<div class="chart-card"><div class="chart-title">Distribución por Modelo</div>'
-        f'<div class="chart-placeholder">🍩 Donut — Fase 3</div></div>',
-        unsafe_allow_html=True,
-    )
+    st.plotly_chart(figures["ranking"], use_container_width=True, config={"displayModeBar": False})

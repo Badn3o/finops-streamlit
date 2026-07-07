@@ -148,6 +148,24 @@ def inject_global_css() -> None:
         align-items: center;
         gap: 8px;
       }}
+      .page-title {{
+        color: {TEXT_PRIMARY};
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.8px;
+        margin: 24px 0 4px;
+      }}
+      .page-subtitle {{
+        color: {TEXT_SECONDARY};
+        font-size: 14px;
+        margin-bottom: 18px;
+      }}
+      .chart-title {{
+        color: {TEXT_PRIMARY};
+        font-size: 16px;
+        font-weight: 700;
+        margin: 6px 0 10px;
+      }}
 
       /* ── Navigation header ──────────────────────────── */
       .nav-header {{
